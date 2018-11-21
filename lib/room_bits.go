@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Room bit definitions
 const (
 	DARK        = 1     // Room is dark.
 	DEATH       = 2     // Room is a death trap; char ``dies'' (no xp lost).
