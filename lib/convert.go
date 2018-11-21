@@ -160,15 +160,15 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 	}
 	r.Sector = sector
 	for {
-		if !scanner.Scan() {
-			if err = scanner.Err(); err != nil {
-				return nil, err
-			}
-			// end of file, that's ok
-			return &r, nil
+		// optional stuff
+		if err := scanner.MustScan(); err != nil {
+			return nil, err
 		}
 		s := scanner.Text()
 		switch {
+		case s == "S":
+			// end of room
+			return &r, nil
 		case strings.HasPrefix(s, "D"):
 			dir, err := scanDir(scanner)
 			if err != nil {
@@ -185,7 +185,6 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 			return nil, fmt.Errorf("unexpected token in room definition: %q", s)
 		}
 	}
-
 }
 
 func scanDir(scanner *fileScanner) (*Exit, error) {
