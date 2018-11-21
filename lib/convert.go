@@ -107,7 +107,11 @@ func ParseWldFile(filename string) (rooms []Room, err error) {
 			if err = scanner.Err(); err != nil {
 				return nil, err
 			}
-			// end of file, that's ok
+			// end of file, that's ok. Technically you're supposed to end the
+			// file with $, but it doesn't really seem to be necessary.
+			return rooms, nil
+		}
+		if strings.TrimSpace(scanner.Text()) == "$" {
 			return rooms, nil
 		}
 		room, err := scanRoom(scanner)
@@ -119,7 +123,7 @@ func ParseWldFile(filename string) (rooms []Room, err error) {
 }
 
 func scanRoom(scanner *fileScanner) (*Room, error) {
-	number := scanner.Text()
+	number := strings.TrimSpace(scanner.Text())
 	if !strings.HasPrefix(number, "#") {
 		return nil, fmt.Errorf("room number must start with #, but found: %q", number)
 	}
@@ -132,7 +136,7 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 		return nil, err
 	}
 	name := scanner.Text()
-	if !strings.HasPrefix(name, "~") {
+	if !strings.HasSuffix(name, "~") {
 		return nil, fmt.Errorf("room name must end with ~, but found: %q", name)
 	}
 	r.Name = name[:len(name)-1]
@@ -164,7 +168,7 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 		if err := scanner.MustScan(); err != nil {
 			return nil, err
 		}
-		s := scanner.Text()
+		s := strings.TrimSpace(scanner.Text())
 		switch {
 		case s == "S":
 			// end of room
@@ -189,7 +193,7 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 
 func scanDir(scanner *fileScanner) (*Exit, error) {
 	// previous code checked that the first character was a D so we can ignore that.
-	s := scanner.Text()[1:]
+	s := strings.TrimSpace(scanner.Text()[1:])
 	dir, ok := ExitDir[s]
 	if !ok {
 		return nil, fmt.Errorf("unknown exit direction %q", s)
