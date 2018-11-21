@@ -27,7 +27,12 @@ func Convert(to, from, pattern string) (err error) {
 		if err != nil {
 			return err
 		}
-		b, err := json.Marshal(r)
+		output := struct {
+			Rooms []Room `json:"rooms"`
+		}{
+			Rooms: r,
+		}
+		b, err := json.MarshalIndent(output, "", "    ")
 		if err != nil {
 			return fmt.Errorf("failed to convert %q to json: %v", name, err)
 		}
