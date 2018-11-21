@@ -101,3 +101,70 @@ var DoorFlags = map[string]string{
 ```
 
 ....that's basically it.  Then I presume anyone can convert from json to an in-memory copy in their own language of choice.
+
+## Example
+
+```
+#3100
+The Northwest End Of The Concourse~
+   You are at the concourse, the city wall is just west.  A small promenade
+goes east, and the bridge is just north of here.  The concourse continues
+south along the city wall.
+~
+31 0 1
+D0
+You see the Bridge.
+~
+~
+0 -1 3051
+D1
+You see the promenade.
+~
+~
+0 -1 3101
+D2
+The promenade continues far south.
+~
+~
+0 -1 3127
+S
+```
+
+Converts into this:
+
+```
+{
+    "number": 3100,
+    "name": "The Northwest End Of The Concourse",
+    "description": "   You are at the concourse, the city wall is just west.  A small promenade\ngoes east, and the bridge is just north of here.  The concourse continues\nsouth along the city wall.",
+    "bits": [],
+    "sector": "CITY",
+    "exits": [
+        {
+            "direction": "North",
+            "description": "You see the Bridge.",
+            "keywords": [],
+            "door_flag": "NONE",
+            "key_number": -1,
+            "destination": 3051
+        },
+        {
+            "direction": "East",
+            "description": "You see the promenade.",
+            "keywords": [],
+            "door_flag": "NONE",
+            "key_number": -1,
+            "destination": 3101
+        },
+        {
+            "direction": "South",
+            "description": "The promenade continues far south.",
+            "keywords": [],
+            "door_flag": "NONE",
+            "key_number": -1,
+            "destination": 3127
+        }
+    ],
+    "extra_descs": null
+},
+```
