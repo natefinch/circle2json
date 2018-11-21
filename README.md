@@ -1,7 +1,21 @@
 # circle2json
-converts CircleMUD room definitions to json equivalents
 
-The structure of the output is given here:
+```
+circle2json converts CircleMUD world (room) files into json files.
+
+usage: circle2json [options]
+
+  -from string
+        specifies the input directory (default ".")
+  -pattern string
+        specifies the glob pattern used to find files (default "*.wld")
+  -to string
+        specifies the output directory (default "./json")
+  -help
+        show this help
+```
+
+The structure of the output is given here (as defined in Go):
 
 ```go
 
@@ -32,24 +46,26 @@ type ExtraDesc struct {
 	Description string   `json:"description"`
 }
 
+// Room bits define different flags of a room.
 const (
-	DARK        = 1     // Room is dark.
-	DEATH       = 2     // Room is a death trap; char dies (no xp lost).
-	NOMOB       = 4     // MOBs (monsters) cannot enter room.
-	INDOORS     = 8     // Room is indoors.
-	PEACEFUL    = 16    // Room is peaceful (violence not allowed).
-	SOUNDPROOF  = 32    // Shouts, gossips, etc. won't be heard in room.
-	NOTRACK     = 64    // track can't find a path through this room.
-	NOMAGIC     = 128   // All magic attempted in this room will fail.
-	TUNNEL      = 256   // Only one person allowed in room at a time.
-	PRIVATE     = 512   // Cannot teleport in or GOTO if two people here.
-	GODROOM     = 1024  // Only LVL_GOD and above allowed to enter.
-	HOUSE       = 2048  // Reserved for internal use.  Do not set.
-	HOUSE_CRASH = 4096  // Reserved for internal use.  Do not set.
-	ATRIUM      = 8192  // Reserved for internal use.  Do not set.
-	OLC         = 16384 // Reserved for internal use.  Do not set.
-	BFS_MARK    = 32768 // Reserved for internal use.  Do not set.
+	DARK        = "DARK"        // Room is dark.
+	DEATH       = "DEATH"       // Room is a death trap; char dies (no xp lost).
+	NOMOB       = "NOMOB"       // MOBs (monsters) cannot enter room.
+	INDOORS     = "INDOORS"     // Room is indoors.
+	PEACEFUL    = "PEACEFUL"    // Room is peaceful (violence not allowed).
+	SOUNDPROOF  = "SOUNDPROOF"  // Shouts, gossips, etc. won't be heard in room.
+	NOTRACK     = "NOTRACK"     // track can't find a path through this room.
+	NOMAGIC     = "NOMAGIC"     // All magic attempted in this room will fail.
+	TUNNEL      = "TUNNEL"      // Only one person allowed in room at a time.
+	PRIVATE     = "PRIVATE"     // Cannot teleport in or GOTO if two people here.
+	GODROOM     = "GODROOM"     // Only LVL_GOD and above allowed to enter.
+	HOUSE       = "HOUSE"       // Reserved for internal use.  Do not set.
+	HOUSE_CRASH = "HOUSE_CRASH" // Reserved for internal use.  Do not set.
+	ATRIUM      = "ATRIUM"      // Reserved for internal use.  Do not set.
+	OLC         = "OLC"         // Reserved for internal use.  Do not set.
+	BFS_MARK    = "BFS_MARK"    // Reserved for internal use.  Do not set.
 )
+
 
 
 // SectorType is a conversion between CircleMUD's sector type number and a human-readable string.
