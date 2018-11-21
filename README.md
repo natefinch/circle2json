@@ -15,6 +15,21 @@ usage: circle2json [options]
         show this help
 ```
 
+## Installation
+
+`go get github.com/natefinch/circle2json`
+
+## Output Format
+
+I basically turned everything that was a number or a flag into a string, to make
+it more human-readable.  I don't really care about size on disk or parse time,
+since this is likely to be an intermediary format for most people (although on
+modern computers, even loading up tens of thousands of these is probably still
+really fast).
+
+For more details about what each thing means, check out the [CircleMUD
+docs](http://www.circlemud.org/cdp/building/building-3.html). 
+
 The structure of the output is given here (as defined in Go):
 
 ```go
