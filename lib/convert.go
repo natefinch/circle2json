@@ -51,6 +51,7 @@ func Convert(to, from, pattern string) (err error) {
 // Room is a representation of a room in a MUD.
 type Room struct {
 	Number      int         `json:"number"`
+	Zone        int         `json:"zone"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Bits        []string    `json:"bits"`
@@ -154,7 +155,13 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 	if len(fields) != 3 {
 		return nil, fmt.Errorf("expected room metadata to be <zone#> <bitvector> <sector>, but got %q", scanner.Text())
 	}
-	// first field is zone number, which is ignored, but retained in circlemud for backwards compatibility
+
+	zone, err := strconv.Atoi(fields[0])
+	if err != nil {
+		return nil, fmt.Errorf("invalid zone number: %q", fields[0])
+	}
+	r.Zone = zone
+
 	bits, err := BitVectorToNames(fields[1])
 	if err != nil {
 		return nil, err
