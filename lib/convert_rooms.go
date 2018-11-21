@@ -301,7 +301,8 @@ func (f *fileScanner) ScanUntil(terminator string) (string, error) {
 			return "", err
 		}
 		s := f.Text()
-		if s == terminator {
+		if strings.HasSuffix(s, terminator) {
+			lines = append(lines, s[:len(s)-len(terminator)])
 			return strings.Join(lines, "\n"), nil
 		}
 		lines = append(lines, s)

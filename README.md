@@ -11,6 +11,8 @@ usage: circle2json [options]
         specifies the glob pattern used to find files (default "*.wld")
   -to string
         specifies the output directory (default "./json")
+  -zone
+        parse zone files instead of room files (makes pattern *.zon)
   -help
         show this help
 ```
@@ -182,4 +184,28 @@ Converts into this:
     ],
     "extra_descs": null
 },
+```
+
+## Zones
+
+Now also parses zones (currently without zone commands)
+see the [Zone Format](http://www.circlemud.org/cdp/building/building-6.html)
+
+Output format is defined this way in go:
+
+```go
+type Zone struct {
+	Number       int    `json:"number"`
+	Name         string `json:"name"`
+	BottomNumber int    `json:"bottom_number"`
+	TopNumber    int    `json:"top_number"`
+	LifespanMins int    `json:"lifespan_minutes"`
+	ResetMode    string `json:"reset_mode"`
+}
+
+const (
+	RESET_NEVER  = "RESET_NEVER"
+	RESET_EMPTY  = "RESET_EMPTY"
+	RESET_ALWAYS = "RESET_ALWAYS"
+)
 ```
