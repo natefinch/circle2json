@@ -12,9 +12,9 @@ import (
 	"strings"
 )
 
-// Convert converts all the CircleMUD world (room) files in the from directory
+// ConvertRooms converts all the CircleMUD world (room) files in the from directory
 // that match the pattern to json files in the to directory.
-func Convert(to, from, pattern string) (err error) {
+func ConvertRooms(to, from, pattern string) (err error) {
 	if err := os.MkdirAll(to, 0700); err != nil {
 		return fmt.Errorf("couldn't create output directory: %v", err)
 	}
@@ -51,6 +51,7 @@ func Convert(to, from, pattern string) (err error) {
 // Room is a representation of a room in a MUD.
 type Room struct {
 	Number      int         `json:"number"`
+	Zone        int         `json:"zone"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Bits        []string    `json:"bits"`
@@ -157,7 +158,13 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 	if len(fields) != 3 {
 		return nil, fmt.Errorf("expected room metadata to be <zone#> <bitvector> <sector>, but got %q", scanner.Text())
 	}
-	// first field is zone number, which is ignored, but retained in circlemud for backwards compatibility
+
+	zone, err := strconv.Atoi(fields[0])
+	if err != nil {
+		return nil, fmt.Errorf("invalid zone number: %q", fields[0])
+	}
+	r.Zone = zone
+
 	bits, err := BitVectorToNames(fields[1])
 	if err != nil {
 		return nil, err
