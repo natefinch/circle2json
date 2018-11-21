@@ -64,7 +64,7 @@ type Exit struct {
 	Direction   string   `json:"direction"`
 	Description string   `json:"description"`
 	Keywords    []string `json:"keywords"`
-	DoorFlag    string   `json:"door_flag"`
+	DoorFlags   []string `json:"door_flags"`
 	KeyNumber   int      `json:"key_number"`
 	Destination int      `json:"destination"`
 }
@@ -137,14 +137,11 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 		return nil, fmt.Errorf("room number %q not a number: %v", number[1:], err)
 	}
 	r := Room{Number: num}
-	if err := scanner.MustScan(); err != nil {
+	name, err := scanner.ScanUntil("~")
+	if err != nil {
 		return nil, err
 	}
-	name := scanner.Text()
-	if !strings.HasSuffix(name, "~") {
-		return nil, fmt.Errorf("room name must end with ~, but found: %q", name)
-	}
-	r.Name = name[:len(name)-1]
+	r.Name = name
 	desc, err := scanner.ScanUntil("~")
 	if err != nil {
 		return nil, err
@@ -168,6 +165,12 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 		return nil, fmt.Errorf("unknown room sector type: %q", fields[2])
 	}
 	r.Sector = sector
+
+	// ignore damage in the room for now.
+	if err := scanner.MustScan(); err != nil {
+		return nil, err
+	}
+
 	for {
 		// optional stuff
 		if err := scanner.MustScan(); err != nil {
@@ -211,14 +214,11 @@ func scanDir(scanner *fileScanner) (*Exit, error) {
 		return nil, err
 	}
 	ex.Description = desc
-	if err := scanner.MustScan(); err != nil {
+	keywords, err := scanner.ScanUntil("~")
+	if err != nil {
 		return nil, err
 	}
-	keywords := scanner.Text()
-	if !strings.HasSuffix(keywords, "~") {
-		return nil, fmt.Errorf("expected keyword list to end in ~ but got %q", keywords)
-	}
-	ex.Keywords = strings.Fields(keywords[:len(keywords)-1])
+	ex.Keywords = strings.Fields(keywords)
 	if err := scanner.MustScan(); err != nil {
 		return nil, err
 	}
@@ -226,11 +226,11 @@ func scanDir(scanner *fileScanner) (*Exit, error) {
 	if len(fields) != 3 {
 		return nil, fmt.Errorf("expected direction fields to be <door_flag> <key_number> <room_linked> but got %q", scanner.Text())
 	}
-	flag, ok := DoorFlags[fields[0]]
-	if !ok {
-		return nil, fmt.Errorf("unknown door flag %q", fields[0])
+	flags, err := doorFlags(fields[0])
+	if err != nil {
+		return nil, err
 	}
-	ex.DoorFlag = flag
+	ex.DoorFlags = flags
 	num, err := strconv.Atoi(fields[1])
 	if err != nil {
 		return nil, fmt.Errorf("invalid key number: %q", fields[1])
@@ -238,21 +238,18 @@ func scanDir(scanner *fileScanner) (*Exit, error) {
 	ex.KeyNumber = num
 	room, err := strconv.Atoi(fields[2])
 	if err != nil {
-		return nil, fmt.Errorf("invalid target room number: %q", fields[2])
+		return nil, fmt.Errorf("invalid direction target room number: %q", fields[2])
 	}
 	ex.Destination = room
 	return ex, nil
 }
 
 func scanExtra(scanner *fileScanner) (*ExtraDesc, error) {
-	if err := scanner.MustScan(); err != nil {
+	s, err := scanner.ScanUntil("~")
+	if err != nil {
 		return nil, err
 	}
-	s := scanner.Text()
-	if !strings.HasSuffix(s, "~") {
-		return nil, fmt.Errorf("expected extra description keywords to end in ~, but got %q", s)
-	}
-	keywords := strings.Fields(s[:len(s)-1])
+	keywords := strings.Fields(s)
 	ex := &ExtraDesc{
 		Keywords: keywords,
 	}
@@ -272,7 +269,7 @@ type fileScanner struct {
 func (f *fileScanner) Scan() bool {
 	b := f.Scanner.Scan()
 	if b {
-		*f.line++
+		(*(f.line))++
 	}
 	return b
 }
@@ -294,7 +291,8 @@ func (f *fileScanner) ScanUntil(terminator string) (string, error) {
 			return "", err
 		}
 		s := f.Text()
-		if s == terminator {
+		if strings.HasSuffix(s, terminator) {
+			lines = append(lines, s[:len(s)-len(terminator)])
 			return strings.Join(lines, "\n"), nil
 		}
 		lines = append(lines, s)

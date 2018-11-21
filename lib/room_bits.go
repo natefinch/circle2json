@@ -7,22 +7,25 @@ import (
 
 // Room bit definitions
 const (
-	DARK        = 1     // Room is dark.
-	DEATH       = 2     // Room is a death trap; char ``dies'' (no xp lost).
-	NOMOB       = 4     // MOBs (monsters) cannot enter room.
-	INDOORS     = 8     // Room is indoors.
-	PEACEFUL    = 16    // Room is peaceful (violence not allowed).
-	SOUNDPROOF  = 32    // Shouts, gossips, etc. won't be heard in room.
-	NOTRACK     = 64    // ``track'' can't find a path through this room.
-	NOMAGIC     = 128   // All magic attempted in this room will fail.
-	TUNNEL      = 256   // Only one person allowed in room at a time.
-	PRIVATE     = 512   // Cannot teleport in or GOTO if two people here.
-	GODROOM     = 1024  // Only LVL_GOD and above allowed to enter.
-	HOUSE       = 2048  // Reserved for internal use.  Do not set.
-	HOUSE_CRASH = 4096  // Reserved for internal use.  Do not set.
-	ATRIUM      = 8192  // Reserved for internal use.  Do not set.
-	OLC         = 16384 // Reserved for internal use.  Do not set.
-	BFS_MARK    = 32768 // Reserved for internal use.  Do not set.
+	DARK       = 1 << iota // Room is dark.
+	DEATH                  // Room is a death trap; char ``dies'' (no xp lost).
+	NOMOB                  // MOBs (monsters) cannot enter room.
+	INDOORS                // Room is indoors.
+	PEACEFUL               // Room is peaceful (violence not allowed).
+	SOUNDPROOF             // Shouts, gossips, etc. won't be heard in room.
+	NOTRACK                // ``track'' can't find a path through this room.
+	NOMAGIC                // All magic attempted in this room will fail.
+	TUNNEL                 // Only one person allowed in room at a time.
+	PRIVATE                // Cannot teleport in or GOTO if two people here.
+	GODROOM                // Only LVL_GOD and above allowed to enter.
+	NOTELEPORT             // You cannot leave this room by any spell
+	NORELOCATE             // You cannot enter this room by any spell
+	NOQUIT                 // You cannot quit out from this room
+	NOFLEE                 // You cannot flee into this room
+	MAGICDARK              // This room will be dark to mortals, but they can see the room description
+	BEAMUP                 // If you use a beamer device in your zone, it can only beam people up from rooms that are flagged BEAMUP
+	FLY                    //  You must be flying to enter this room.
+	STASIS                 // This gives the room the same effect as the stasis field skill.
 )
 
 // LetterBits converts a letter-style bit to the corresponding bit name
@@ -38,30 +41,36 @@ var LetterBits = map[rune]string{
 	'i': "TUNNEL",
 	'j': "PRIVATE",
 	'k': "GODROOM",
-	'l': "HOUSE",
-	'm': "HOUSE_CRASH",
-	'n': "ATRIUM",
-	'o': "OLC",
-	'p': "BFS_MARK",
+	'l': "NOTELEPORT",
+	'm': "NORELOCATE",
+	'n': "NOQUIT",
+	'o': "NOFLEE",
+	'p': "MAGICDARK",
+	'q': "BEAMUP",
+	'r': "FLY",
+	's': "STASIS",
 }
 
 var BitNames = map[int]string{
-	DARK:        "DARK",
-	DEATH:       "DEATH",
-	NOMOB:       "NOMOB",
-	INDOORS:     "INDOORS",
-	PEACEFUL:    "PEACEFUL",
-	SOUNDPROOF:  "SOUNDPROOF",
-	NOTRACK:     "NOTRACK",
-	NOMAGIC:     "NOMAGIC",
-	TUNNEL:      "TUNNEL",
-	PRIVATE:     "PRIVATE",
-	GODROOM:     "GODROOM",
-	HOUSE:       "HOUSE",
-	HOUSE_CRASH: "HOUSE_CRASH",
-	ATRIUM:      "ATRIUM",
-	OLC:         "OLC",
-	BFS_MARK:    "BFS_MARK",
+	DARK:       "DARK",
+	DEATH:      "DEATH",
+	NOMOB:      "NOMOB",
+	INDOORS:    "INDOORS",
+	PEACEFUL:   "PEACEFUL",
+	SOUNDPROOF: "SOUNDPROOF",
+	NOTRACK:    "NOTRACK",
+	NOMAGIC:    "NOMAGIC",
+	TUNNEL:     "TUNNEL",
+	PRIVATE:    "PRIVATE",
+	GODROOM:    "GODROOM",
+	NOTELEPORT: "NOTELEPORT",
+	NORELOCATE: "NORELOCATE",
+	NOQUIT:     "NOQUIT",
+	NOFLEE:     "NOFLEE",
+	MAGICDARK:  "MAGICDARK",
+	BEAMUP:     "BEAMUP",
+	FLY:        "FLY",
+	STASIS:     "STASIS",
 }
 
 // BitVectorToNames converts a room's bitvector into a list of bit names
@@ -69,8 +78,8 @@ func BitVectorToNames(vector string) ([]string, error) {
 	values := []string{}
 	if num, err := strconv.Atoi(vector); err == nil {
 		// number-style bitvector
-		for bit := DARK; bit <= BFS_MARK; bit = bit << 1 {
-			if num&bit == 1 {
+		for bit := DARK; bit <= STASIS; bit = bit << 1 {
+			if num&bit != 0 {
 				values = append(values, BitNames[bit])
 			}
 		}
