@@ -12,9 +12,9 @@ import (
 	"strings"
 )
 
-// Convert converts all the CircleMUD world (room) files in the from directory
+// ConvertRooms converts all the CircleMUD world (room) files in the from directory
 // that match the pattern to json files in the to directory.
-func Convert(to, from, pattern string) (err error) {
+func ConvertRooms(to, from, pattern string) (err error) {
 	if err := os.MkdirAll(to, 0700); err != nil {
 		return fmt.Errorf("couldn't create output directory: %v", err)
 	}
