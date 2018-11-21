@@ -22,16 +22,11 @@ func ConvertZones(to, from, pattern string) (err error) {
 		return err
 	}
 	for _, name := range files {
-		zones, err := ParseZoneFile(name)
+		zone, err := ParseZoneFile(name)
 		if err != nil {
 			return err
 		}
-		output := struct {
-			Zones []Zone `json:"zones"`
-		}{
-			Zones: zones,
-		}
-		b, err := json.MarshalIndent(output, "", "    ")
+		b, err := json.MarshalIndent(zone, "", "    ")
 		if err != nil {
 			return fmt.Errorf("failed to convert %q to json: %v", name, err)
 		}
@@ -48,7 +43,7 @@ func ConvertZones(to, from, pattern string) (err error) {
 }
 
 // ParseZoneFile parses the given CircleMUD zone file.
-func ParseZoneFile(filename string) (zones []Zone, err error) {
+func ParseZoneFile(filename string) (zone *Zone, err error) {
 	// need this because scan can panic if you send it too much stuff
 	defer func() {
 		panicErr := recover()
@@ -79,24 +74,20 @@ func ParseZoneFile(filename string) (zones []Zone, err error) {
 			err = fmt.Errorf("%s:%v - %s", filename, line, err)
 		}
 	}()
-	for {
-		if !scanner.Scan() {
-			if err = scanner.Err(); err != nil {
-				return nil, err
-			}
-			// end of file, that's ok. Technically you're supposed to end the
-			// file with $, but it doesn't really seem to be necessary.
-			return zones, nil
-		}
-		if strings.TrimSpace(scanner.Text()) == "$" {
-			return zones, nil
-		}
-		zone, err := scanZone(scanner)
-		if err != nil {
-			return nil, err
-		}
-		zones = append(zones, *zone)
+	if err := scanner.MustScan(); err != nil {
+		return nil, err
 	}
+	zone, err = scanZone(scanner)
+	if err != nil {
+		return nil, err
+	}
+	if err := scanner.MustScan(); err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(scanner.Text()) != "$" {
+		return nil, fmt.Errorf("unexpected data at end of zone file: %q", scanner.Text())
+	}
+	return zone, nil
 }
 
 type Zone struct {
