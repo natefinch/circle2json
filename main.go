@@ -16,7 +16,7 @@ func main() {
 	flag.StringVar(&pattern, "pattern", "*.wld", "specifies the glob pattern used to find files")
 	flag.StringVar(&mode, "mode", "room", "mob, zone, or room (defaults pattern to *.mob, *.zon *.wld, respectively)")
 	flag.Usage = func() {
-		fmt.Print("circle2json converts CircleMUD world (room) files into json files.\n\n")
+		fmt.Print("circle2json converts Ashes2Ashes world files into json files.\n\n")
 		fmt.Print("usage: circle2json [options]\n\n")
 		flag.PrintDefaults()
 		fmt.Print("  -help\n        show this help\n")
