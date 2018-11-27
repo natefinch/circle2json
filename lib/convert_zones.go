@@ -91,13 +91,13 @@ func ParseZoneFile(filename string) (zone *Zone, err error) {
 }
 
 type Zone struct {
-	Number       int    `json:"number"`
-	Name         string `json:"name"`
-	BottomNumber int    `json:"bottom_number"`
-	TopNumber    int    `json:"top_number"`
-	LifespanMins int    `json:"lifespan_minutes"`
-	ResetMode    string `json:"reset_mode"`
-	Closed       bool   `json:"closed"`
+	Number       int    `json:"ID"`
+	Name         string `json:"Name"`
+	BottomNumber int    `json:"BottomNumber"`
+	TopNumber    int    `json:"TopNumber"`
+	LifespanMins int    `json:"Lifespan"`
+	ResetMode    string `json:"ResetMode"`
+	Closed       bool   `json:"Closed"`
 }
 
 const (

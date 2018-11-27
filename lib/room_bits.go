@@ -1,35 +1,31 @@
 package lib
 
-import (
-	"fmt"
-	"strconv"
-)
-
 // Room bit definitions
 const (
-	DARK       = 1 << iota // Room is dark.
-	DEATH                  // Room is a death trap; char ``dies'' (no xp lost).
-	NOMOB                  // MOBs (monsters) cannot enter room.
-	INDOORS                // Room is indoors.
-	PEACEFUL               // Room is peaceful (violence not allowed).
-	SOUNDPROOF             // Shouts, gossips, etc. won't be heard in room.
-	NOTRACK                // ``track'' can't find a path through this room.
-	NOMAGIC                // All magic attempted in this room will fail.
-	TUNNEL                 // Only one person allowed in room at a time.
-	PRIVATE                // Cannot teleport in or GOTO if two people here.
-	GODROOM                // Only LVL_GOD and above allowed to enter.
-	NOTELEPORT             // You cannot leave this room by any spell
-	NORELOCATE             // You cannot enter this room by any spell
-	NOQUIT                 // You cannot quit out from this room
-	NOFLEE                 // You cannot flee into this room
-	MAGICDARK              // This room will be dark to mortals, but they can see the room description
-	BEAMUP                 // If you use a beamer device in your zone, it can only beam people up from rooms that are flagged BEAMUP
-	FLY                    //  You must be flying to enter this room.
-	STASIS                 // This gives the room the same effect as the stasis field skill.
+
+	ROOM_DARK       = 1 << iota // Room is dark.
+	ROOM_DEATH                  // Room is a death trap; char ``dies'' (no xp lost).
+	ROOM_NOMOB                  // MOBs (monsters) cannot enter room.
+	ROOM_INDOORS                // Room is indoors.
+	ROOM_PEACEFUL               // Room is peaceful (violence not allowed).
+	ROOM_SOUNDPROOF             // Shouts, gossips, etc. won't be heard in room.
+	ROOM_NOTRACK                // ``track'' can't find a path through this room.
+	ROOM_NOMAGIC                // All magic attempted in this room will fail.
+	ROOM_TUNNEL                 // Only one person allowed in room at a time.
+	ROOM_PRIVATE                // Cannot teleport in or GOTO if two people here.
+	ROOM_GODROOM                // Only LVL_GOD and above allowed to enter.
+	ROOM_NOTELEPORT             // You cannot leave this room by any spell
+	ROOM_NORELOCATE             // You cannot enter this room by any spell
+	ROOM_NOQUIT                 // You cannot quit out from this room
+	ROOM_NOFLEE                 // You cannot flee into this room
+	ROOM_MAGICDARK              // This room will be dark to mortals, but they can see the room description
+	ROOM_BEAMUP                 // If you use a beamer device in your zone, it can only beam people up from rooms that are flagged BEAMUP
+	ROOM_FLY                    //  You must be flying to enter this room.
+	ROOM_STASIS                 // This gives the room the same effect as the stasis field skill.
 )
 
 // LetterBits converts a letter-style bit to the corresponding bit name
-var LetterBits = map[rune]string{
+var RoomChars = map[rune]string{
 	'a': "DARK",
 	'b': "DEATH",
 	'c': "NOMOB",
@@ -51,46 +47,30 @@ var LetterBits = map[rune]string{
 	's': "STASIS",
 }
 
-var BitNames = map[int]string{
-	DARK:       "DARK",
-	DEATH:      "DEATH",
-	NOMOB:      "NOMOB",
-	INDOORS:    "INDOORS",
-	PEACEFUL:   "PEACEFUL",
-	SOUNDPROOF: "SOUNDPROOF",
-	NOTRACK:    "NOTRACK",
-	NOMAGIC:    "NOMAGIC",
-	TUNNEL:     "TUNNEL",
-	PRIVATE:    "PRIVATE",
-	GODROOM:    "GODROOM",
-	NOTELEPORT: "NOTELEPORT",
-	NORELOCATE: "NORELOCATE",
-	NOQUIT:     "NOQUIT",
-	NOFLEE:     "NOFLEE",
-	MAGICDARK:  "MAGICDARK",
-	BEAMUP:     "BEAMUP",
-	FLY:        "FLY",
-	STASIS:     "STASIS",
+
+var RoomBits = map[int]string{
+	ROOM_DARK:       "DARK",
+	ROOM_DEATH:      "DEATH",
+	ROOM_NOMOB:      "NOMOB",
+	ROOM_INDOORS:    "INDOORS",
+	ROOM_PEACEFUL:   "PEACEFUL",
+	ROOM_SOUNDPROOF: "SOUNDPROOF",
+	ROOM_NOTRACK:    "NOTRACK",
+	ROOM_NOMAGIC:    "NOMAGIC",
+	ROOM_TUNNEL:     "TUNNEL",
+	ROOM_PRIVATE:    "PRIVATE",
+	ROOM_GODROOM:    "GODROOM",
+	ROOM_NOTELEPORT: "NOTELEPORT",
+	ROOM_NORELOCATE: "NORELOCATE",
+	ROOM_NOQUIT:     "NOQUIT",
+	ROOM_NOFLEE:     "NOFLEE",
+	ROOM_MAGICDARK:  "MAGICDARK",
+	ROOM_BEAMUP:     "BEAMUP",
+	ROOM_FLY:        "FLY",
+	ROOM_STASIS:     "STASIS",
 }
 
-// BitVectorToNames converts a room's bitvector into a list of bit names
-func BitVectorToNames(vector string) ([]string, error) {
-	values := []string{}
-	if num, err := strconv.Atoi(vector); err == nil {
-		// number-style bitvector
-		for bit := DARK; bit <= STASIS; bit = bit << 1 {
-			if num&bit != 0 {
-				values = append(values, BitNames[bit])
-			}
-		}
-		return values, nil
-	}
-	for _, r := range []rune(vector) {
-		s, ok := LetterBits[r]
-		if !ok {
-			return nil, fmt.Errorf("unknown bit vector letter: %v", r)
-		}
-		values = append(values, s)
-	}
-	return values, nil
+// RoomBitsToNames converts a room's bitvector into a list of bit names
+func RoomBitsToNames(vector string) ([]string, error) {
+	return BitsToNames(vector, ROOM_STASIS, RoomBits, RoomChars)
 }

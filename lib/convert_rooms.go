@@ -3,7 +3,6 @@ package lib
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -50,30 +49,30 @@ func ConvertRooms(to, from, pattern string) (err error) {
 
 // Room is a representation of a room in a MUD.
 type Room struct {
-	Number      int         `json:"number"`
-	Zone        int         `json:"zone"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Bits        []string    `json:"bits"`
-	Sector      string      `json:"sector"`
-	Exits       []Exit      `json:"exits"`
-	Extras      []ExtraDesc `json:"extra_descs"`
+	Number      int         `json:"ID"`
+	Zone        int         `json:"Zone"`
+	Name        string      `json:"Name"`
+	Description string      `json:"Description"`
+	Bits        []string    `json:"Bits"`
+	Sector      string      `json:"Sector"`
+	Exits       []Exit      `json:"Exits"`
+	Extras      []ExtraDesc `json:"ExtraDescs"`
 }
 
 // Exit represents a way you may move out of a room.
 type Exit struct {
-	Direction   string   `json:"direction"`
-	Description string   `json:"description"`
-	Keywords    []string `json:"keywords"`
-	DoorFlags   []string `json:"door_flags"`
-	KeyNumber   int      `json:"key_number"`
-	Destination int      `json:"destination"`
+	Direction   string   `json:"Direction"`
+	Description string   `json:"Description"`
+	Keywords    []string `json:"Keywords"`
+	DoorFlags   []string `json:"DoorFlags"`
+	KeyNumber   int      `json:"KeyID"`
+	Destination int      `json:"Destination"`
 }
 
 // ExtraDesc represents other things you can look at in the room.
 type ExtraDesc struct {
-	Keywords    []string `json:"keywords"`
-	Description string   `json:"description"`
+	Keywords    []string `json:"Keywords"`
+	Description string   `json:"Description"`
 }
 
 // ParseWldFile parses the given CircleMUD wld file.
@@ -162,7 +161,7 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 	}
 	r.Zone = zone
 
-	bits, err := BitVectorToNames(fields[1])
+	bits, err := RoomBitsToNames(fields[1])
 	if err != nil {
 		return nil, err
 	}
@@ -266,42 +265,4 @@ func scanExtra(scanner *fileScanner) (*ExtraDesc, error) {
 	}
 	ex.Description = desc
 	return ex, nil
-}
-
-type fileScanner struct {
-	line *int
-	*bufio.Scanner
-}
-
-func (f *fileScanner) Scan() bool {
-	b := f.Scanner.Scan()
-	if b {
-		(*(f.line))++
-	}
-	return b
-}
-
-func (f *fileScanner) MustScan() error {
-	if !f.Scan() {
-		if err := f.Err(); err != nil {
-			return err
-		}
-		return errors.New("unexpected EOF")
-	}
-	return nil
-}
-
-func (f *fileScanner) ScanUntil(terminator string) (string, error) {
-	var lines []string
-	for {
-		if err := f.MustScan(); err != nil {
-			return "", err
-		}
-		s := f.Text()
-		if strings.HasSuffix(s, terminator) {
-			lines = append(lines, s[:len(s)-len(terminator)])
-			return strings.Join(lines, "\n"), nil
-		}
-		lines = append(lines, s)
-	}
 }
