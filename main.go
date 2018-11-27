@@ -10,11 +10,11 @@ import (
 
 func main() {
 	var to, from, pattern string
-	var zone bool
+	var mode string
 	flag.StringVar(&from, "from", ".", "specifies the input directory")
 	flag.StringVar(&to, "to", "./json", "specifies the output directory")
 	flag.StringVar(&pattern, "pattern", "*.wld", "specifies the glob pattern used to find files")
-	flag.BoolVar(&zone, "zone", false, "parse zone files instead of room files (makes pattern *.zon)")
+	flag.StringVar(&mode, "mode", "room", "mob, zone, or room (defaults pattern to *.mob, *.zon *.wld, respectively)")
 	flag.Usage = func() {
 		fmt.Print("circle2json converts CircleMUD world (room) files into json files.\n\n")
 		fmt.Print("usage: circle2json [options]\n\n")
@@ -24,17 +24,27 @@ func main() {
 	flag.Parse()
 
 	log.SetFlags(0)
-	if zone {
+	switch mode {
+	case "zone", "zones":
 		if pattern == "*.wld" {
 			pattern = "*.zon"
 		}
 		if err := lib.ConvertZones(to, from, pattern); err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	case "room", "rooms":
 		if err := lib.ConvertRooms(to, from, pattern); err != nil {
 			log.Fatal(err)
 		}
+	case "mob", "mobs":
+		if pattern == "*.wld" {
+			pattern = "*.mob"
+		}
+		if err := lib.ConvertMobs(to, from, pattern); err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatalf("unknown mode: %v", mode)
 	}
 	log.Println("success!")
 }

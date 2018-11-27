@@ -7,6 +7,8 @@ usage: circle2json [options]
 
   -from string
         specifies the input directory (default ".")
+  -mode string
+        mob, zone, or room (defaults pattern to *.mob, *.zon *.wld, respectively) (default "room")
   -pattern string
         specifies the glob pattern used to find files (default "*.wld")
   -to string
