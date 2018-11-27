@@ -3,7 +3,6 @@ package lib
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -269,42 +268,4 @@ func scanExtra(scanner *fileScanner) (*ExtraDesc, error) {
 	}
 	ex.Description = desc
 	return ex, nil
-}
-
-type fileScanner struct {
-	line *int
-	*bufio.Scanner
-}
-
-func (f *fileScanner) Scan() bool {
-	b := f.Scanner.Scan()
-	if b {
-		*f.line++
-	}
-	return b
-}
-
-func (f *fileScanner) MustScan() error {
-	if !f.Scan() {
-		if err := f.Err(); err != nil {
-			return err
-		}
-		return errors.New("unexpected EOF")
-	}
-	return nil
-}
-
-func (f *fileScanner) ScanUntil(terminator string) (string, error) {
-	var lines []string
-	for {
-		if err := f.MustScan(); err != nil {
-			return "", err
-		}
-		s := f.Text()
-		if strings.HasSuffix(s, terminator) {
-			lines = append(lines, s[:len(s)-len(terminator)])
-			return strings.Join(lines, "\n"), nil
-		}
-		lines = append(lines, s)
-	}
 }

@@ -1,32 +1,27 @@
 package lib
 
-import (
-	"fmt"
-	"strconv"
-)
-
 // Room bit definitions
 const (
-	DARK        = 1     // Room is dark.
-	DEATH       = 2     // Room is a death trap; char ``dies'' (no xp lost).
-	NOMOB       = 4     // MOBs (monsters) cannot enter room.
-	INDOORS     = 8     // Room is indoors.
-	PEACEFUL    = 16    // Room is peaceful (violence not allowed).
-	SOUNDPROOF  = 32    // Shouts, gossips, etc. won't be heard in room.
-	NOTRACK     = 64    // ``track'' can't find a path through this room.
-	NOMAGIC     = 128   // All magic attempted in this room will fail.
-	TUNNEL      = 256   // Only one person allowed in room at a time.
-	PRIVATE     = 512   // Cannot teleport in or GOTO if two people here.
-	GODROOM     = 1024  // Only LVL_GOD and above allowed to enter.
-	HOUSE       = 2048  // Reserved for internal use.  Do not set.
-	HOUSE_CRASH = 4096  // Reserved for internal use.  Do not set.
-	ATRIUM      = 8192  // Reserved for internal use.  Do not set.
-	OLC         = 16384 // Reserved for internal use.  Do not set.
-	BFS_MARK    = 32768 // Reserved for internal use.  Do not set.
+	ROOM_DARK        = 1 << iota // Room is dark.
+	ROOM_DEATH                   // Room is a death trap; char ``dies'' (no xp lost).
+	ROOM_NOMOB                   // MOBs (monsters) cannot enter room.
+	ROOM_INDOORS                 // Room is indoors.
+	ROOM_PEACEFUL                // Room is peaceful (violence not allowed).
+	ROOM_SOUNDPROOF              // Shouts, gossips, etc. won't be heard in room.
+	ROOM_NOTRACK                 // ``track'' can't find a path through this room.
+	ROOM_NOMAGIC                 // All magic attempted in this room will fail.
+	ROOM_TUNNEL                  // Only one person allowed in room at a time.
+	ROOM_PRIVATE                 // Cannot teleport in or GOTO if two people here.
+	ROOM_GODROOM                 // Only LVL_GOD and above allowed to enter.
+	ROOM_HOUSE                   // Reserved for internal use.  Do not set.
+	ROOM_HOUSE_CRASH             // Reserved for internal use.  Do not set.
+	ROOM_ATRIUM                  // Reserved for internal use.  Do not set.
+	ROOM_OLC                     // Reserved for internal use.  Do not set.
+	ROOM_BFS_MARK                // Reserved for internal use.  Do not set.
 )
 
-// LetterBits converts a letter-style bit to the corresponding bit name
-var LetterBits = map[rune]string{
+// RoomChars converts a letter-style bit to the corresponding bit name
+var RoomChars = map[rune]string{
 	'a': "DARK",
 	'b': "DEATH",
 	'c': "NOMOB",
@@ -45,43 +40,26 @@ var LetterBits = map[rune]string{
 	'p': "BFS_MARK",
 }
 
-var BitNames = map[int]string{
-	DARK:        "DARK",
-	DEATH:       "DEATH",
-	NOMOB:       "NOMOB",
-	INDOORS:     "INDOORS",
-	PEACEFUL:    "PEACEFUL",
-	SOUNDPROOF:  "SOUNDPROOF",
-	NOTRACK:     "NOTRACK",
-	NOMAGIC:     "NOMAGIC",
-	TUNNEL:      "TUNNEL",
-	PRIVATE:     "PRIVATE",
-	GODROOM:     "GODROOM",
-	HOUSE:       "HOUSE",
-	HOUSE_CRASH: "HOUSE_CRASH",
-	ATRIUM:      "ATRIUM",
-	OLC:         "OLC",
-	BFS_MARK:    "BFS_MARK",
+var RoomBits = map[int]string{
+	ROOM_DARK:        "DARK",
+	ROOM_DEATH:       "DEATH",
+	ROOM_NOMOB:       "NOMOB",
+	ROOM_INDOORS:     "INDOORS",
+	ROOM_PEACEFUL:    "PEACEFUL",
+	ROOM_SOUNDPROOF:  "SOUNDPROOF",
+	ROOM_NOTRACK:     "NOTRACK",
+	ROOM_NOMAGIC:     "NOMAGIC",
+	ROOM_TUNNEL:      "TUNNEL",
+	ROOM_PRIVATE:     "PRIVATE",
+	ROOM_GODROOM:     "GODROOM",
+	ROOM_HOUSE:       "HOUSE",
+	ROOM_HOUSE_CRASH: "HOUSE_CRASH",
+	ROOM_ATRIUM:      "ATRIUM",
+	ROOM_OLC:         "OLC",
+	ROOM_BFS_MARK:    "BFS_MARK",
 }
 
 // BitVectorToNames converts a room's bitvector into a list of bit names
 func BitVectorToNames(vector string) ([]string, error) {
-	values := []string{}
-	if num, err := strconv.Atoi(vector); err == nil {
-		// number-style bitvector
-		for bit := DARK; bit <= BFS_MARK; bit = bit << 1 {
-			if num&bit == 1 {
-				values = append(values, BitNames[bit])
-			}
-		}
-		return values, nil
-	}
-	for _, r := range []rune(vector) {
-		s, ok := LetterBits[r]
-		if !ok {
-			return nil, fmt.Errorf("unknown bit vector letter: %v", r)
-		}
-		values = append(values, s)
-	}
-	return values, nil
+	return BitsToNames(vector, ROOM_BFS_MARK, RoomBits, RoomChars)
 }
